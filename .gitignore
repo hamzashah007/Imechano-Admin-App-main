@@ -9,6 +9,76 @@
 .history
 .svn/
 
+# Additional ignores
+*.tmp
+*.swo
+*.orig
+*.bak
+*.db
+*.sqlite
+*.sqlite3
+*.pid
+*.seed
+*.pid.lock
+
+# VSCode
+.vscode/
+
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub/
+build/
+flutter_*.png
+*.lock
+
+# Android
+android/app/build/
+android/.gradle/
+android/local.properties
+android/gradlew
+android/gradlew.bat
+android/build/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Flutter/GeneratedPluginRegistrant.swift
+ios/Runner.xcworkspace/
+ios/Podfile.lock
+ios/GoogleService-Info.plist
+
+# Web
+web/favicon.png
+web/icons/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Others
+.env
+.env.*
+
+# Node
+node_modules/
+
+# Coverage
+coverage/
+
+# Generated files
+*.generated.*
+
 # IntelliJ related
 *.iml
 *.ipr
