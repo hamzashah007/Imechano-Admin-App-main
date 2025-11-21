@@ -13,62 +13,98 @@ import '../ui/bottombar/pickup_schedule_page.dart';
 import 'package:imechano_admin/ui/bottombar/job_card_24.dart';
 
 class Utils {
-  static void handleNotificationNavigation(
-      [RemoteMessage? message, String? title, String? jobNo]) {
-    // Log the full notification payload
-    log('[Notification Payload] message: ${message?.data} title: $title jobNo: $jobNo');
+  static void handleNotificationNavigation([
+    RemoteMessage? message,
+    String? title,
+    String? jobNo,
+    Map<String, dynamic>? localPayload,
+  ]) {
+    // Unified data extraction
+    final data = message?.data ?? localPayload ?? <String, dynamic>{};
+    final type =
+        (data['type'] ?? data['action'] ?? '').toString().toLowerCase();
+    final jobNumber = jobNo ??
+        data['job_number']?.toString() ??
+        data['booking_id']?.toString() ??
+        data['jobNo']?.toString();
 
-    String? str = title ?? message?.data.toString();
-    log('Got str in handle notification: $str');
+    log('[Notification Navigation] type: $type, jobNumber: $jobNumber, title: $title, data: $data');
 
-    // Try to extract job number from multiple possible sources
-    String? jobNumber;
-    if (jobNo != null && jobNo.isNotEmpty) {
-      jobNumber = jobNo;
-    } else if (message?.data['job_number'] != null) {
-      jobNumber = message?.data['job_number'].toString();
-    } else if (message?.data['jobNo'] != null) {
-      jobNumber = message?.data['jobNo'].toString();
-    }
-    log('Extracted jobNumber: $jobNumber');
-
-    log('GOT DATA FROM APPROVE JOB CARD ${message?.data}, JOB NO:  $jobNumber');
     if (Get.context != null) {
       Provider.of<NotificationCountProvider>(Get.context!, listen: false)
           .setNotifications();
     } else {
       log('[ERROR] Get.context is null, cannot update notifications!');
     }
-    if ((str != null &&
-        (str.contains('New Booking') ||
-            str.contains('Emergency Booking') ||
-            str.contains('Car Checkup Booking') ||
-            str.contains('Quick Service Booking') ||
-            str.contains('Upholstery Booking') ||
-            str.contains('Car Detailing Booking')))) {
-      Get.offAll(() => PickupSchedulePage());
-    } else if (str != null &&
-        (str.contains('Job Card Accepted') ||
-            str.contains('User has Approved a Job Card') ||
-            str.contains('Job Card Approved'))) {
-      Get.offAll(() => JobCardTwentyfour());
-    } else if (str != null &&
-        (str.contains('Approve Job Card') ||
-            str.contains('Confirm Delivery Rejected'))) {
-      if (jobNumber != null && jobNumber.isNotEmpty) {
-        Get.to(() => MyJobCard(job_number: jobNumber));
-      } else {
-        log('[ERROR] Job number missing, cannot navigate to MyJobCard');
+
+    // Type-based navigation
+    if (type.isNotEmpty) {
+      switch (type) {
+        case 'new_booking':
+        case 'emergency_booking':
+        case 'car_checkup_booking':
+        case 'quick_service_booking':
+        case 'car_detailing_booking':
+          Get.offAll(() => PickupSchedulePage());
+          return;
+        case 'job_card_approved':
+        case 'job_card_ready':
+        case 'job_card_completed':
+          Get.offAll(() => JobCardTwentyfour());
+          return;
+        case 'payment_confirmation':
+          Get.offAll(() => AppointmentPage());
+          return;
+        case 'job_card_ready':
+        case 'job_card_approved':
+        case 'job_card_completed':
+          if (jobNumber != null && jobNumber.isNotEmpty) {
+            Get.to(() => MyJobCard(job_number: jobNumber));
+            return;
+          } else {
+            log('[ERROR] Job number missing, cannot navigate to MyJobCard');
+          }
+          return;
+        // Add more cases as needed for other types
       }
-    } else if (str != null &&
-        (str.contains('Payment Confirmation') ||
-            str.contains('Pickup Confirmation Accept') ||
-            str.contains('Confirm Delivery Completed') ||
-            str.contains('Cancel Job Card') ||
-            str.contains('Pickup Confirmation Rejected') ||
-            str.contains('Delivery Scheduled'))) {
-      Get.offAll(() => AppointmentPage());
     }
+
+    // Fallback: string matching if type is missing
+    final str = title ?? data['title']?.toString() ?? data.toString();
+    if (str.isNotEmpty) {
+      if (str.contains('Pickup Confirmation Accept')) {
+        Get.offAll(() => AppointmentPage());
+        return;
+      }
+      if (str.contains('Delivery Scheduled')) {
+        Get.offAll(() => AppointmentPage());
+        return;
+      }
+      if (str.contains('Confirm Delivery Completed')) {
+        Get.offAll(() => AppointmentPage());
+        return;
+      }
+      if (str.contains('Booking') ||
+          str.contains('Emergency') ||
+          str.contains('Checkup') ||
+          str.contains('Quick Service') ||
+          str.contains('Detailing')) {
+        Get.offAll(() => PickupSchedulePage());
+        return;
+      }
+      if (str.contains('Job Card') ||
+          str.contains('Approved') ||
+          str.contains('Completed')) {
+        Get.offAll(() => JobCardTwentyfour());
+        return;
+      }
+      if (str.contains('Payment')) {
+        Get.offAll(() => AppointmentPage());
+        return;
+      }
+      // Add more fallback cases as needed
+    }
+    log('[INFO] No navigation matched for type or string.');
   }
 
   static void showToast(String msg) {

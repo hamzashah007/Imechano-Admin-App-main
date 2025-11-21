@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
 
 Future<void> main() async {
   //  HttpOverrides.global = new MyHttpOverrides();
@@ -75,7 +77,21 @@ class _IMechanoAppState extends State<IMechanoApp> {
         InitializationSettings(
       android: initializationSettingsAndroid,
     );
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        final payload = response.payload;
+        if (payload != null && payload.isNotEmpty) {
+          try {
+            final Map<String, dynamic> data =
+                Map<String, dynamic>.from(jsonDecode(payload));
+            Utils.handleNotificationNavigation(null, null, null, data);
+          } catch (e) {
+            log('[ERROR] Failed to parse local notification payload: $e');
+          }
+        }
+      },
+    );
 
     // Ensure notification channel is created for Android
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -128,12 +144,16 @@ class _IMechanoAppState extends State<IMechanoApp> {
       log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
       log('onMessageOpenedApp data: ${message.data}');
       log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      Utils.handleNotificationNavigation(message, null);
-
-      // Show local notification banner in foreground
+      // Only show local notification, do not navigate
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
+        // Pass the message data, title, and body as payload for navigation on tap
+        final payloadMap = {
+          ...message.data,
+          'title': notification.title,
+          'body': notification.body,
+        };
         await flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -148,6 +168,7 @@ class _IMechanoAppState extends State<IMechanoApp> {
               priority: Priority.high,
             ),
           ),
+          payload: jsonEncode(payloadMap),
         );
       }
     });
@@ -185,7 +206,6 @@ class _IMechanoAppState extends State<IMechanoApp> {
 
   Widget dicedeScreen(Box prefs) {
     PrefObj.preferences = prefs;
-    final userStr = prefs.containsKey(PrefKeys.USER_DATA) ? true : false;
     return SplashScreen();
   }
 }
