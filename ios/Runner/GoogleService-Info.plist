@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDx3BFhusvPEFSbiKdUsLaZUZaU8b0hRLM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>559230683480</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.imechano.admin</string>
+	<key>PROJECT_ID</key>
+	<string>imechano-userapp</string>
+	<key>STORAGE_BUCKET</key>
+	<string>imechano-userapp.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:559230683480:ios:4bcfd1e61ac8bfa601bd2d</string>
+</dict>
+</plist>
