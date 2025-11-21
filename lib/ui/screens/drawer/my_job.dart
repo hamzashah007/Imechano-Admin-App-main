@@ -220,6 +220,19 @@ class _MyJobCardState extends State<MyJobCard> {
                                 child: CircularProgressIndicator(),
                               );
                             }
+                            if (custjoblistSnapshot.data == null ||
+                                custjoblistSnapshot.data!.data == null ||
+                                custjoblistSnapshot.data!.data!.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'Job Card not found for this notification.',
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins1',
+                                      fontSize: 18.sp,
+                                      color: Colors.red),
+                                ),
+                              );
+                            }
 
                             return SingleChildScrollView(
                               child: Column(
